@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your PM</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="JS/main.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/4946/4946385.png?track=ais" type="image/x-icon">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = {
+                username: document.getElementById("username-username").textContent,
+                id: document.getElementById("id-id").textContent
+            };
+
+            fetch("http://localhost:8080/api/project/get/" + user.id, {method: "GET"})
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error("Response error :", error);
+                });
+
+            var username = user.username;
+            var firstLetter = username.charAt(0).toUpperCase();
+            var randomColor = '#' + Math.floor(Math.random()*4096).toString(16).padStart(3, '0') + '000';
+
+            // Проверяем, существует ли уже аватар
+            var existingAvatar = document.querySelector('.profile-img');
+            if (existingAvatar) {
+                // Если аватар уже существует, мы не создаем новый
+                return;
+            }
+
+            // Создаем новый элемент 'avatar' с классом 'profile-img'
+            var avatar = document.createElement('div');
+            avatar.className = 'profile-img';
+            avatar.style.backgroundColor = randomColor;
+            avatar.style.borderRadius = '50%';
+            avatar.style.width = '50px';
+            avatar.style.height = '50px';
+            avatar.style.display = 'flex';
+            avatar.style.justifyContent = 'center';
+            avatar.style.alignItems = 'center';
+            avatar.style.color = '#fff';
+            avatar.textContent = firstLetter;
+
+            // Добавляем новый элемент 'avatar' внутрь элемента с классом 'profile', слева от надписи "Мой профиль"
+            var profileDiv = document.querySelector('.profile');
+            profileDiv.insertBefore(avatar, profileDiv.firstChild);
+        });
+    </script>
+</head>
+<body>
+<p id="username-username" th:text="${username}" style="display: none"></p>
+<p id="id-id" th:text="${id}" style="display: none"></p>
+<header class="header-top" >
+    <div class="container">
+        <div class="container-fluid">
+            <div class="navbar-brand" style="pointer-events: none;">
+                <img src="https://cdn-icons-png.flaticon.com/128/4946/4946385.png?track=ais" alt="Logo" width="50" height="50" class="d-inline-block align-text-top">
+                <span>Your PM</span>
+            </div>
+            <button class="create-project">Создать план для проекта</button>
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <form id="myForm" th:action="${'/api/project/new/' + id}" th:method="POST">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.getToken()}"/>
+                        <div class="form-group">
+                            <label for="task-name">Название проекта</label>
+                            <input type="text" class="form-control" id="task-name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-deadline">Сроки выполнения проекта</label>
+                            <input type="text" class="form-control" id="task-deadline" name="deadline" placeholder="дд.мм.гггг">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority">Приоритет проекта</label>
+                            <select class="form-control" id="task-priority" name="priority">
+                                <option>Высокий</option>
+                                <option>Средний</option>
+                                <option>Низкий</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </form>
+                </div>
+            </div>
+            <div class="profile"><span href="#">Мой профиль</span></div>
+        </div>
+    </div>
+</header>
+<main>
+    <div class="container">
+        <div class="left-side-panel">
+            <h1>Сортировка и счетчик</h1>
+            <style>
+                .status-list li {
+                    display: flex;
+                    align-items: center;
+
+                }
+                .status-list li:hover {
+                    cursor: pointer;
+                    color: blue;
+                }
+                .status-list li::before {
+                    content: "";
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                }
+
+                .completed::before {
+                    background-color: green;
+                }
+
+                .in-progress::before {
+                    background-color: blue;
+                }
+
+                .postponed::before {
+                    background-color: rgb(226, 13, 13);
+                }
+                .status-count {
+                    position: relative;
+                    left: 10px;
+                }
+                #in-progress {
+                    left: 10.5px;
+                }
+                #postponed {
+                    left: 17.5px;
+                }
+            </style>
+
+            <div class="how-many-tasks">
+                <ul class="status-list">
+                    <li class="completed">
+                        Выполнено
+                        <span class="status-count" id="completed">0</span>
+                    </li>
+                    <li class="in-progress">
+                        В процессе
+                        <span class="status-count" id="in-progress">0</span>
+                    </li >
+                    <li class="postponed">
+                        Отложено
+                        <span class="status-count" id="postponed">0</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="sort-tasks">
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Написать скрипт, который будет отправлять форму модального окна при нажатии на кнопку "сохранить изменения"
+    var modal = document.getElementById("myModal");
+    var button = document.querySelector(".create-project");
+    var closeButton = document.querySelector(".close");
+
+    function openModal() {
+        modal.style.display = "block";
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    button.addEventListener("click", openModal);
+    closeButton.addEventListener("click", closeModal);
+
+    // Обработчик события отправки формы
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        // Получаем значения полей формы
+        var taskName = document.getElementById("task-name").value;
+        var taskDescription = document.getElementById("task-description").value;
+        var taskDeadline = document.getElementById("task-deadline").value;
+        var taskPriority = document.getElementById("task-priority").value;
+        // Выполняем необходимые действия с полученными данными
+        console.log("Название задачи или проекта:", taskName);
+        console.log("Описание задачи или проекта:", taskDescription);
+        console.log("Сроки выполнения задачи или проекта:", taskDeadline);
+        console.log("Приоритет задачи:", taskPriority);
+        closeModal();
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+<script src="JS/main.js"></script>
+
+<style>
+    .header-top{
+        background-color: #ffffff;
+        color: white;
+        height: fit-content;
+        width: 100%;
+        padding: 20px;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    .navbar-brand span{
+        color: black;
+        font-size: 30px;
+        margin-left: 10px;
+    }
+    .navbar-brand{
+        display: flex;
+    }
+    .header-top .container-fluid{
+        display: flex;
+        justify-content: space-between !important;
+    }
+    .create-project{
+        padding: 16px 20px;
+        border-radius: 25px;
+        border: none;
+        background-color: rgba(49, 190, 49, 0.463);
+        transition: 0.3s all ease;
+    }
+    .create-project:hover{
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .create-project:active{
+        transform: scale(0.95);
+    }
+    .profile{
+        display:  flex;
+        align-items: center;
+    }
+    .profile span{
+        margin-left: 10px;
+        font-size: 20px;
+        color: black;
+        transition: all 0.3s ease;
+    }
+    .profile span:hover{
+        transform: scale(1.1);
+        cursor: pointer;
+    }
+    /* Стили для модального окна */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 5px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Дополнительные стили для формы */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    .form-group label{
+        color: black;
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-family: 'Open Sans', sans-serif;
+    }
+    .left-side-panel{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        border-radius: 30px;
+        padding: 20px;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+        background-color: rgba(224, 216, 216, 0.323);
+        width: fit-content;
+        position: fixed;
+        bottom: 50%;
+    }
+    .left-side-panel h1{
+        font-family: 'Open Sans', sans-serif;
+        font-size: 20px;
+    }
+    .how-many-tasks{
+        display: flex;
+
+    }
+    .how-many-tasks ul{
+        margin-left: -130px;
+    }
+
+</style>
+</body>
+</html>
