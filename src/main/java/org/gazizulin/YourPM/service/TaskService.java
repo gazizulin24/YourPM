@@ -39,8 +39,12 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Integer taskId){
-        Task task = taskRepository.findById(taskId).orElseThrow();
-        taskRepository.delete(task);
+        taskRepository.deleteById(taskId);
+    }
+
+
+    public Integer getProjectIdByTaskId(Integer taskId){
+        return taskRepository.findById(taskId).orElseThrow().getProject().getId();
     }
 
     public long deadlineToTimeStamp(String dateString){

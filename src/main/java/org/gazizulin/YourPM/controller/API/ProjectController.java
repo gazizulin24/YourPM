@@ -52,7 +52,7 @@ public class ProjectController {
         if (userService.getUserByUsername(username).isPresent()){
             projectService.addUserToProject(projectId, username);
         }
-        return new RedirectView("/dashboard");
+        return new RedirectView("/dashboard/" + projectId);
     }
 
     @PostMapping("/remove/{projectId}")
@@ -60,6 +60,12 @@ public class ProjectController {
                                               @PathVariable(name = "projectId") Integer projectId){
 
         projectService.removeUserFromProject(projectId, username);
+        return new RedirectView("/dashboard/" + projectId);
+    }
+
+    @GetMapping("/delete/{projectId}")
+    public RedirectView deleteProject(@PathVariable(name = "projectId") Integer projectId){
+        projectService.deleteProject(projectId);
         return new RedirectView("/dashboard");
     }
 }

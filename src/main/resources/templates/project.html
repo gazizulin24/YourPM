@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Your PM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/4946/4946385.png?track=ais" type="image/x-icon">
+    <style>
+        .delete-project{
+            padding: 16px 20px;
+            border-radius: 25px;
+            border: none;
+            background-color: #ff414d ;
+            transition: 0.3s all ease;
+            color: white;
+            text-shadow: #e10b0b 2px 0px 2px;
+        }
+        .delete-project:hover{
+            transform: translateY(-5px);
+            box-shadow: 0px 4px 8px 0 rgba(254, 3, 3, 0.616), 0 6px 20px 0 rgba(184, 61, 61, 0.562);
+        }
+        .delete-project:active{
+            transform: scale(0.95);
+        }
+
+        .header-top{
+            background-color: #ffffff;
+            color: white;
+            height: fit-content;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+        .container{
+            max-width: 1400px !important;
+        }
+        .navbar-brand span{
+            color: black;
+            font-size: 30px;
+            margin-left: 10px;
+        }
+        .navbar-brand{
+            display: flex;
+        }
+        .navbar-brand:hover{
+            cursor: pointer;
+        }
+        .header-top .container-fluid{
+            display: flex;
+            justify-content: space-between !important;
+        }
+        .create-project{
+            padding: 16px 20px;
+            border-radius: 25px;
+            border: none;
+            background-color: rgba(49, 190, 49, 0.463);
+            transition: 0.3s all ease;
+        }
+        .create-project:hover{
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .create-project:active{
+            transform: scale(0.95);
+        }
+        .profile{
+            display:  flex;
+            align-items: center;
+        }
+        .profile a{
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 20px;
+            color: black;
+            transition: all 0.3s ease;
+        }
+        .profile a:hover{
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Дополнительные стили для формы */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .form-group label{
+            color: black;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        .left-side-panel{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+            background-color: rgba(224, 216, 216, 0.323);
+            width: fit-content;
+            max-width: 300px;
+            max-height: 500px;
+            margin: 20px;
+        }
+        .left-side-panel .project-name{
+            text-align: center;
+            background-color: #157ccb1b;
+            border-radius: 30px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .left-side-panel .project-name h2{
+            font-size: 16px;
+        }
+        .left-side-panel h1{
+            font-family: 'Open Sans', sans-serif;
+            font-size: 20px;
+        }
+        .how-many-tasks{
+            display: flex;
+
+        }
+        .how-many-tasks ul{
+            margin-left: -130px;
+        }
+        .status-list li {
+            display: flex;
+            align-items: center;
+
+        }
+        .status-list li:hover {
+            cursor: pointer;
+            color: blue;
+        }
+        .status-list li::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .completed::before {
+            background-color: green;
+        }
+
+        .in-progress::before {
+            background-color: blue;
+        }
+
+        .postponed::before {
+            background-color: rgb(226, 13, 13);
+        }
+        .status-count {
+            position: relative;
+            left: 10px;
+        }
+        #in-progress {
+            left: 10.5px;
+        }
+        #postponed {
+            left: 17.5px;
+        }
+        .sort-tasks{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            flex-direction: column;
+        }
+
+        .sort-tasks button {
+            margin: 10px;
+            width: 170px;
+            padding: 8px;
+            border-radius: 20px;
+            border: none;
+            transition: transform 0.3s ease;
+        }
+
+        .sort-tasks button:hover {
+            transform: translate(-8px);
+            cursor: pointer;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19);
+        }
+        .sort-tasks button:active {
+            transform: scale(0.85);
+        }
+        .sort-tasks .high-priority {
+            background-color: #ff414d; /* Красный цвет для высокого приоритета */
+            color: #fff;
+        }
+
+        .sort-tasks .medium-priority {
+            background-color: #ffc107; /* Желтый цвет для среднего приоритета */
+            color: #fff;
+        }
+
+        .sort-tasks .low-priority {
+            background-color: #28a745; /* Зеленый цвет для низкого приоритета */
+            color: #fff;
+        }
+        .project .container {
+            display: flex !important;
+        }
+        .project .right-side-panel{
+            width: 100%;
+            border: none;
+            box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.222);
+            border-radius: 30px;
+            margin-top: 20px;
+            margin-left: 20px;
+            overflow: hidden;
+            padding: 0px 10px;
+        }
+        .project{
+            margin-top: 30px;
+        }
+
+        .right-side-header{
+            padding: 0 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .right-side-header .status-info {
+            display: flex;
+        }
+        .right-side-header .status-info .prioritety {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            border-radius: 0px 0px 10px 10px;
+            background: #819CA5;
+            padding: 0px 15px 10px 15px;
+            color: rgb(0, 0, 0);
+            width: 500px;
+        }
+        .priority-span{
+            font-size: 20px !important;
+        }
+        .status{
+            position: relative;
+            border-radius: 0px 0px 10px 10px;
+            width: 120px;
+            height: 65px;
+            font-size: 20px !important;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            left: -100px;
+        }
+        .tasks h1{
+            font-size: 30px !important;
+        }
+        .my-tasks, .all-task, .completed-tasks {
+            border-radius: 10px;
+            background: #034f6861;
+            padding: 5px;
+            margin-bottom: 10px;
+            justify-content: space-between;
+            height: fit-content;
+            transition: all 0.3s ease;
+        }
+        .arrow, .arrow2 , .arrow3 {
+            content: url('https://cdn-icons-png.flaticon.com/128/2985/2985150.png');
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+        }
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            /* Добавьте стили по вашему выбору */
+        }
+        .arrow.flipped {
+            transform: rotate(180deg);
+        }
+        .arrow2.flipped {
+            transform: rotate(180deg);
+        }
+        .arrow3.flipped {
+            transform: rotate(180deg);
+        }
+        .tasks.expanded {
+            display: block;
+            transition: all 0.3s ease;
+        }
+        .addTaskBtn{
+            margin-left: -40px;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tasks-header{
+            display: flex;
+            justify-content: space-between;
+        }
+        .task-list {
+            transition: all 0.3s ease;
+        }
+
+        .task-list.show {
+            display: block;
+            transition: all 0.3s ease;
+        }
+        .status {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .closen {
+            color: #aaa;
+            float: right;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .closen:hover,
+        .closen:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .tasks li{
+            list-style: none;
+            padding: 10px;
+            background-color: rgba(245, 222, 179, 0.54);
+            color: white;
+            margin-top: 10px;
+            border-radius: 15px;
+            max-width: 1030px;
+            height: fit-content;
+            font-size: 16px;
+            margin-right: 25px;
+        }
+        .tasks textarea{
+            width: 100%;
+            height: 200px;
+            border: none;
+            background-color: rgba(179, 226, 245, 0.54);
+            border-radius: 15px;
+            outline: none;
+            padding: 10px;
+            color: rgba(0, 0, 0, 0.629);
+            font-family: 'Open Sans', sans-serif;
+            resize: none;
+        }
+        .deleteBtntask{
+            cursor: pointer;
+            border: none;
+            padding: 5px;
+            color: white;
+            background-color: rgba(255, 0, 0, 0.464);
+            border-radius: 10px;
+        }
+        .tasks li{
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            height: fit-content;
+        }
+        .li-header{
+            display: flex;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+        .li-deadline{
+            display: flex;
+            flex-direction: column;
+        }
+        .li-deadline span{
+            margin-top: -10px;
+        }
+        .li-priority{
+            background-color: #ff414d;
+            position: relative;
+            border-radius: 	0px 0px 10px 10px; ;
+            width: 300px;
+            top:-10px;
+            text-align: center;
+            padding: 10px;
+        }
+        .add-members{
+            display: flex;
+        }
+        .add-member{
+            border: none;
+            border-radius: 50%;
+            background-color: #28a745;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .add-member span{
+            position: relative;
+            font-size: 40px !important;
+            top:-15px;
+        }
+        .add-members h3 {
+            margin-right: 15px;
+        }
+        .circle{
+            content: "";
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: rgba(67, 48, 208, 0.621);
+            margin-top: -5px;
+        }
+        .circle2{
+            content: "";
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: #ff414d ;
+            margin-top: -5px;
+        }
+        .circle3{
+            content: "";
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: #28a745;
+            margin-top: -5px;
+        }
+        .li-stasus-info{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tasks {
+            text-shadow: #5a6268 1px 0px 1px;
+        }
+        .profiles{
+            display: flex;
+            justify-content: space-between;
+        }
+        .profiles .profile-img{
+            margin-right: 10px;
+            width: 40px !important;
+            height: 40px !important;
+        }
+        .status-info{
+            margin-right: 0px;
+        }
+        .tasks-header h1{
+            margin-left: 40px;
+        }
+        .tasks{
+            margin-top: 30px;
+        }
+        .my-tasks , .all-task , .completed-tasks{
+            margin-top: 30px;
+        }
+        .addTaskBtn{
+            margin-right: 60px;
+        }
+        .buttons{
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        .buttons button{
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .delete-task{
+            background-color: #ff414d;
+            color: white;
+            text-shadow: #819CA5 1px 0px 1px;
+        }
+        .edit-status{
+            background-color: #16aab8;
+            color: white;
+            text-shadow: #819CA5 1px 0px 1px;
+        }
+        .edit-priority{
+            background-color: #28a745;
+            color: white;
+            text-shadow: #819CA5 1px 0px 1px;
+        }
+        .li-priority{
+            text-align: center;
+        }
+        .tasks-header h1{
+            margin-top: 20px;
+        }
+        #modal-body1{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #modal-body1 button{
+            margin-left: 10px;
+        }
+        .profiles-serach{
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: rgba(179, 226, 245, 0.54);
+            width: 100%;
+            min-height: 100px;
+        }
+        .search-members{
+            display: flex;
+            justify-content: space-around;
+        }
+        .profile-img-example {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-img-example{
+            background-color: #000;
+            color: #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .buttons button{
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .buttons button:hover{
+            transform: scale(1.05);
+        }
+
+    </style>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var user = {
+                username : document.getElementById("username-username").textContent
+            }
+
+            var username = user.username;
+            var firstLetter = username.charAt(0).toUpperCase();
+            var randomColor = '#' + Math.floor(Math.random()*4096).toString(16).padStart(3, '0') + '000';
+
+            // Проверяем, существует ли уже аватар
+            var existingAvatar = document.querySelector('.profile-img');
+            if (existingAvatar) {
+                // Если аватар уже существует, мы не создаем новый
+                return;
+            }
+
+            // Создаем новый элемент 'avatar' с классом 'profile-img'
+            var avatar = document.createElement('div');
+            avatar.className = 'profile-img';
+            avatar.style.backgroundColor = randomColor;
+            avatar.style.borderRadius = '50%';
+            avatar.style.width = '50px';
+            avatar.style.height = '50px';
+            avatar.style.display = 'flex';
+            avatar.style.justifyContent = 'center';
+            avatar.style.alignItems = 'center';
+            avatar.style.color = '#fff';
+            avatar.textContent = firstLetter;
+
+            // Добавляем новый элемент 'avatar' внутрь элемента с классом 'profile', слева от надписи "Мой профиль"
+            var profileDiv = document.querySelector('.profile');
+            profileDiv.insertBefore(avatar, profileDiv.firstChild);
+            var arrow = document.getElementById('arrow');
+
+            arrow.addEventListener('click', function() {
+                arrow.classList.toggle('flipped');
+            });
+            var profileDiv2 = document.querySelector('.profile');
+            profileDiv2.insertBefore(avatar, profileDiv2.firstChild);
+            var arrow2 = document.getElementById('arrow2');
+            arrow2.addEventListener('click', function() {
+                arrow2.classList.toggle('flipped');
+            });
+            var profileDiv3 = document.querySelector('.profile');
+            profileDiv3.insertBefore(avatar, profileDiv3.firstChild);
+            var arrow3 = document.getElementById('arrow3');
+
+            arrow3.addEventListener('click', function() {
+                arrow3.classList.toggle('flipped');
+            });
+
+        });
+    </script>
+</head>
+<body>
+<p id="username-username" th:text="${username}" style="display: none"></p>
+<p id="id-id" th:text="${id}" style="display: none"></p>
+<header class="header-top" >
+    <div class="container">
+        <div class="container-fluid">
+            <div class="navbar-brand"  id="toMainPage" >
+                <img src="https://cdn-icons-png.flaticon.com/128/4946/4946385.png?track=ais" alt="Logo" width="50" height="50" class="d-inline-block align-text-top">
+                <span>Your PM</span>
+            </div>
+            <button class="delete-project" th:id="${'delete-project-' + projects.get(0).getId()}" onclick="if(confirm('Вы уверены, что хотите удалить этот проект?(Пути назад нет)')) { deleteProject() }">Удалить проект</button>
+            <div class="profile"><a th:href="${'/profile/' + id}" style="color: black">Мой профиль</a></div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+
+    <main class="project" th:each="project : ${projects}">
+        <div class="container " th:id="${'project' + project.getId()}">
+            <div class="left-side-panel" id="мб тут тоже придумать что-то с айди, что делать и все такое ">
+                <div class="project-name">
+                    <h1>Название проекта:</h1>
+                    <h2 class="project-title" th:text="${project.getName()}">Создание web-приложения</h2>
+                </div>
+                <h1>Сортировка и счетчик</h1>
+                <div class="how-many-tasks">
+                    <ul class="status-list">
+                        <li class="completed">
+                            Выполнено
+                            <span class="status-count" id="completed">0</span>
+                        </li>
+                        <li class="in-progress">
+                            В процессе
+                            <span class="status-count" id="in-progress" th:text="${project.getTasks().size()}">0</span>
+                        </li >
+                        <li class="postponed">
+                            Отложено
+                            <span class="status-count" id="postponed">0</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- СДЕЛАТЬ СОРИРОВКУ -->
+                <div class="sort-tasks">
+                    <button class="high-priority">Высокий приоритет</button>
+                    <button class="medium-priority"> Средний приоритет</button>
+                    <button class="low-priority">Низкий приоритет</button>
+                </div>
+            </div>
+            <div class="right-side-panel">
+                <div class="right-side-header">
+                    <div class="status-info">
+                        <div class="prioritety"><span>Приоритет:<span class="priority-span" th:text="${project.getPriority()}">Высокий</span></span><span>Сроки завершения:<span class="deadline" style="color :white" th:text="${project.getDeadline()}">12.03.2024</span></span></div>
+                        <div class="status" onclick="changeStatus(this)" tabindex="-1">В процессе</div>
+                    </div>
+                    <div class="add-members">
+                        <h3>Участники</h3>
+                        <div class="member">
+                            <div class="profiles"></div>
+                        </div>
+                        <!-- Код HTML для модального окна добавления участника -->
+                        <div id="memberModal" style="display: none;">
+                            <div id="memberModalContent">
+                                <span id="closeMemberModal">&times;</span>
+                                <h2>Добавить участника</h2>
+                                <form id="memberForm" th:action="${'/api/project/adduser/' + project.getId()}" th:method="POST">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.getToken()}"/>
+                                    <input type="text" id="memberNameInput" name="username" placeholder="Имя участника" required class="member-name-input">
+                                    <button type="submit" class="dobavit">Добавить</button>
+                                </form>
+                            </div>
+                        </div>
+                        <style>
+                            /* Стили модального окна */
+                            #memberModal {
+                                display: none;
+                                position: fixed;
+                                z-index: 1;
+                                left: 0;
+                                top: 0;
+                                width: 100%;
+                                height: 100%;
+                                overflow: auto;
+                                background-color: rgba(0, 0, 0, 0.4);
+                            }
+
+                            #memberModalContent {
+                                background-color: #ecf2f8;
+                                margin: 15% auto;
+                                padding: 20px;
+                                border: 1px solid #888;
+                                width: 400px;
+                                height: 300px;
+                                border-radius: 15px;
+                            }
+
+                            #closeMemberModal {
+                                color: #aaa;
+                                float: right;
+                                font-size: 28px;
+                                font-weight: bold;
+                                cursor: pointer;
+                            }
+                            #memberForm {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                margin-top: 30px;
+                            }
+                            .member-name-input {
+                                margin-bottom: 10px;
+                                width: 100%;
+                                padding: 10px;
+                                border: none;
+                                background-color: rgba(179, 226, 245, 0.54);
+                                border-radius: 15px;
+                                outline: none;
+                                color: rgba(0, 0, 0, 0.629);
+                                font-family: 'Open Sans', sans-serif;
+
+                            }
+                            .dobavit {
+                                width: 50%;
+                                padding: 10px;
+                                border: none;
+                                background-color: rgba(35, 143, 89, 0.54);
+                                border-radius: 15px;
+                                outline: none;
+                                color: white;
+                                font-family: 'Open Sans', sans-serif;
+                            }
+                            #closeMemberModal:hover,
+                            #closeMemberModal:focus {
+                                color: black;
+                                text-decoration: none;
+                                cursor: pointer;
+                            }
+                        </style>
+                        <button id="addMemberBtn" class="add-member">
+                            <span>+</span>
+                        </button>
+                        <script th:inline="javascript">
+                            var memberModal = document.getElementById('memberModal');
+                            var addMemberBtn = document.getElementById('addMemberBtn');
+                            var closeMemberModal = document.getElementById('closeMemberModal');
+                            var memberModalContent = document.getElementById('memberModalContent');
+                            function openMemberModal() {
+                                memberModal.style.display = 'block';
+                            }
+                            function closeMemberModalFunc() {
+                                memberModal.style.display = 'none';
+                            }
+                            addMemberBtn.addEventListener('click', openMemberModal);
+                            closeMemberModal.addEventListener('click', closeMemberModalFunc);
+                            memberModalContent.addEventListener('click', function(event) {
+                                event.stopPropagation();
+                            });
+                            document.getElementById('memberForm').addEventListener('submit', function(event) {
+                                var memberName = document.getElementById('memberNameInput').value;
+                                var memberRole = document.getElementById('memberRoleInput').value;
+                                // Действия при отправке формы добавления участника
+                                closeMemberModalFunc();
+                                event.preventDefault();
+                            });
+                            document.addEventListener('click', function(event) {
+                                if (event.target === memberModal) {
+                                    closeMemberModalFunc();
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+                <div class="tasks">
+
+                    <div class="all-task" id="allTasks">
+                        <div class="tasks-header">
+                            <h1>
+                                Все задачи
+                            </h1>
+                            <button class="addTaskBtn">Добавить задачу</button>
+                            <span id="arrow2" class="arrow2"></span>
+                        </div>
+                        <ul class="all-task-list" id="allTaskList" th:each="task : ${project.getTasks()}">
+                            <li class="task-list-all">
+                                <div class="li-header" >
+                                    <div class="li-deadline">
+                                        <h3 th:text="${task.getName()}">Название задачи</h3>
+                                        <span th:text="${'Срок завершения: ' + task.getDeadline()}">deadline</span>
+                                    </div>
+                                    <div class="li-priority">
+                                        <h3 th:text="${task.getPriority()}">Средний</h3>
+                                    </div>
+                                    <div class="li-stasus-info">
+                                        <div class="circle2"></div>
+                                        <h3 th:text="${task.getState()}">Отложено</h3>
+                                    </div>
+                                </div>
+                                <div class="li-description">
+                                </div>
+                                <textarea class="description" th:text="${task.getDescription()}"></textarea>
+                                <div class="buttons">
+                                    <button class="delete-task" th:id="${'delete-task-' + task.getId()}">Удалить задачу</button>
+                                    <button class="edit-priority">Изменить Приоритет</button>
+                                    <button class="edit-status">Изменить статус</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+
+                </div>
+                <!-- Модальное окно добавления задачи -->
+                <div id="addTaskModal" class="modal">
+                    <div class="modal-content">
+                        <span class="closen">X</span>
+                        <h2>Добавить задачу</h2>
+                        <form id="myTaskForm" th:action="${'/api/task/new/' + project.getId()}" th:method="POST">
+                            <input type="hidden">
+                            <div class="form-group">
+                                <label for="task-name">Название задачи</label>
+                                <input type="text" class="form-control" id="task-name" required name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="task-description">Описание задачи</label>
+                                <input type="text" class="form-control" id="task-description" name="description" placeholder="описание..">
+                            </div>
+                            <div class="form-group">
+                                <label for="task-deadline">Сроки выполнения задачи</label>
+                                <input type="text" class="form-control" id="task-deadline" name="deadline" required placeholder="дд.мм.гггг">
+                            </div>
+                            <div class="form-group">
+                                <label for="task-priority">Приоритет задачи</label>
+                                <select class="form-control" id="task-priority" name="priority">
+                                    <option>Высокий</option>
+                                    <option>Средний</option>
+                                    <option>Низкий</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+
+
+                var users = /*[[${project.getUsers()}]]*/ null;
+
+                // Преобразование списка проектов в JSON-строку
+                //var users = JSON.stringify(usersN);
+
+                users.forEach(function(user) {
+                    var username = user.name;
+                    var firstLetter = username.charAt(0).toUpperCase();
+                    var randomColor = '#' + Math.floor(Math.random()*4096).toString(16).padStart(3, '0') + '000';
+
+                    // Проверяем, существует ли уже аватар для данного пользователя
+                    var existingAvatar = document.querySelector('.profile-img[data-username="' + username + '"]');
+                    if (existingAvatar) {
+                        // Если аватар уже существует, мы не создаем новый
+                        return;
+                    }
+
+                    // Создаем новый элемент 'avatar' с классом 'profile-img'
+                    var avatar = document.createElement('div');
+                    avatar.className = 'profile-img';
+                    avatar.dataset.username = username;
+                    avatar.style.backgroundColor = randomColor;
+                    avatar.style.borderRadius = '50%';
+                    avatar.style.width = '50px';
+                    avatar.style.height = '50px';
+                    avatar.style.display = 'flex';
+                    avatar.style.justifyContent = 'center';
+                    avatar.style.alignItems = 'center';
+                    avatar.style.color = '#fff';
+                    avatar.textContent = firstLetter;
+
+                    // Ограничиваем количество аватаров до двух
+                    var existingAvatars = document.querySelectorAll('.profile .profile-img');
+                    if (existingAvatars.length >= 2) {
+                        return;
+                    }
+
+                    // Добавляем новый элемент 'avatar' внутрь элемента с классом 'profiles'
+                    var profilesDiv = document.querySelector('.profiles');
+                    profilesDiv.appendChild(avatar);
+                });
+                // Получаем элементы с классом "li-priority"
+                var liPriorityElements = document.querySelectorAll('.li-priority');
+
+// Проходим по каждому элементу
+                liPriorityElements.forEach(function(liPriorityElement) {
+                    // Получаем заголовок элемента
+                    var h3Element = liPriorityElement.querySelector('h3');
+                    // Получаем текст заголовка
+                    var priorityText = h3Element.innerText;
+
+                    // Устанавливаем цвет фона в зависимости от значения текста заголовка
+                    switch (priorityText) {
+                        case 'Высокий':
+                            liPriorityElement.style.backgroundColor = '#ff414d';
+                            break;
+                        case 'Средний':
+                            liPriorityElement.style.backgroundColor = '#ffc107';
+                            break;
+                        case 'Низкий':
+                            liPriorityElement.style.backgroundColor = '#28a745';
+                            break;
+                        default:
+                            // Если значение не соответствует ни одному из вариантов, не меняем цвет фона
+                            break;
+                    }
+                });
+            });
+        </script>
+
+
+        <script th:inline="javascript">
+
+            var projectModal = document.getElementById('myModal');
+            var createProjectBtn = document.querySelector('.create-project');
+            var closeProjectModal = document.querySelector('.close');
+            var container = document.querySelector('main');
+
+            function openProjectModal() {
+                projectModal.style.display = 'block';
+            }
+
+            function closeProjectModalFunc() {
+                projectModal.style.display = 'none';
+            }
+
+            createProjectBtn.addEventListener('click', openProjectModal);
+            closeProjectModal.addEventListener('click', closeProjectModalFunc);
+
+            document.getElementById('myForm').addEventListener('submit', function(event) {
+                var projectName = document.getElementById('project-name').value;
+                var projectDeadline = document.getElementById('project-deadline').value;
+                var projectPriority = document.getElementById('project-priority').value;
+                closeProjectModalFunc();
+            });
+        </script>
+        <script th:inline="javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var statuses = ['В процессе', 'Отложено', 'Выполнено'];
+
+                function changeStatus(element) {
+                    var currentStatus = element.textContent.trim();
+                    var currentIndex = statuses.indexOf(currentStatus);
+                    var nextIndex = (currentIndex + 1) % statuses.length;
+                    element.textContent = statuses[nextIndex];
+                    updateColor(element, statuses[nextIndex]);
+                }
+                function updateColor(element, status) {
+                    if (status === 'В процессе') {
+                        element.style.backgroundColor = '#D6A937';
+                    } else if (status === 'Отложено') {
+                        element.style.backgroundColor = 'red';
+                    } else if (status === 'Выполнено') {
+                        element.style.backgroundColor = 'green';
+                    }
+                }
+                var statusDiv = document.querySelector('.status');
+                statusDiv.onclick = function() { changeStatus(this); };
+                // Обновляем цвет фона при загрузке страницы
+                updateColor(statusDiv, statusDiv.textContent.trim());
+            });
+        </script>
+
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var prioritySpan = document.querySelector('.priority-span');
+                var priority = prioritySpan.textContent.trim();
+                if (priority === 'Высокий') {
+                    prioritySpan.style.color = 'red';
+                } else if (priority === 'Средний') {
+                    prioritySpan.style.color = 'yellow';
+                } else if (priority === 'Низкий') {
+                    prioritySpan.style.color = 'green';
+                }
+            });
+        </script>
+        <script th:inline="javascript">
+            var arrow = document.getElementById('arrow');
+            var taskList = document.getElementById('myTaskList');
+
+            arrow.addEventListener('click', function() {
+                taskList.classList.toggle('show');
+            });
+        </script>
+        <script th:inline="javascript">
+            var addTaskBtn = document.querySelector('.addTaskBtn');
+            var modal = document.getElementById('addTaskModal');
+            var closeModal = document.querySelector('.closen');
+            var myTaskForm = document.getElementById('myTaskForm');
+            var myTaskList = document.getElementById('myTaskList');
+            var arrow = document.getElementById('arrow');
+            var myTasks = document.getElementById('myTasks');
+
+            addTaskBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+            });
+
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            myTaskForm.addEventListener('submit', function(event) {
+                var taskName = document.getElementById('task-name').value;
+                var taskDescription = document.getElementById('task-description').value;
+                var taskDeadline = document.getElementById('task-deadline').value;
+                var taskPriority = document.getElementById('task-priority').value;
+
+            });
+        </script>
+    </main>
+
+
+
+</main>
+
+<script>
+    var buttons = document.querySelectorAll('button[id^="delete-task-"]');
+
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            console.log("Нажата кнопка с id:", button.id);
+            let buttonId = button.id;
+            let taskId = buttonId.substring("delete-task-".length);
+            let token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+            let header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+            console.log(token);
+            console.log(header);
+            fetch("/api/task/delete/" + taskId, {
+                method: 'GET',
+                headers : {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                }
+            })
+                .then(function(response) {
+                    if (response.ok) {
+                        console.log(`DELETE-запрос для задачи с айди ${taskId} успешно выполнен.`);
+                        window.location.href = response.url;
+                    } else {
+                        console.error(`Ошибка при выполнении DELETE-запроса для задачи с айди ${taskId}.`);
+                    }
+                    console.log(response);
+                })
+                .catch(function(error) {
+                    console.error(`Ошибка при выполнении DELETE-запроса для задачи с айди ${taskId}.`, error);
+                });
+        });
+    });
+</script>
+<script>
+        var toMainPageDiv = document.querySelector('#toMainPage');
+
+        toMainPageDiv.addEventListener('click', function() {
+            let token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+            let header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+            fetch("/dashboard", {
+                method: 'GET',
+                headers: {
+                    [header]: token
+                }
+            })
+            .then(function (response) {
+                if (response.ok) {
+                    window.location.href = response.url;
+                } else {
+                }
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+        })
+
+</script>
+<script>
+    function deleteProject() {
+        var buttons = document.querySelector('button[id^="delete-project-"]');
+
+        let buttonId = buttons.id;
+        let projectId = buttonId.substring("delete-project-".length);
+        let token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        let header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+        console.log(token);
+        console.log(header);
+        fetch("/api/project/delete/" + projectId, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            }
+        })
+            .then(function (response) {
+                if (response.ok) {
+                    window.location.href = response.url;
+                } else {
+                }
+                console.log(response);
+            })
+            .catch(function (error) {
+            });
+    }
+
+</script>
+</body>
+</html>

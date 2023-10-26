@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,6 +36,19 @@ public class DashboardController {
         Integer userId =userService.findIdByUsername(username);
         modelAndView.addObject("id", userId);
         modelAndView.addObject("projects", projectService.getAllProjectsToUser(userId));
+        return modelAndView;
+    }
+
+    @GetMapping("/{projectId}")
+    public ModelAndView getProjectPage(@PathVariable("projectId") Integer id, Authentication auth){
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String username = userDetails.getUsername();
+
+        ModelAndView modelAndView = new ModelAndView("project");
+        modelAndView.addObject("username", username);
+        Integer userId =userService.findIdByUsername(username);
+        modelAndView.addObject("id", userId);
+        modelAndView.addObject("projects", projectService.getProjectById(id));
         return modelAndView;
     }
 }

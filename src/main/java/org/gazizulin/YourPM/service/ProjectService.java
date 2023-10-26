@@ -66,8 +66,17 @@ public class ProjectService {
     public List<ProjectDTO> getAllProjectsToUser(Integer id){
         User user = usersRepository.findById(id).orElseThrow();
         List<Project> projects = user.getProjects();
-        List<ProjectDTO> projectDTOS = projects.stream().map(this::mapToDTO).collect(Collectors.toList());
-        return projectDTOS;
+        return projects.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    public List<ProjectDTO> getProjectById(Integer id){
+        List<Project> projects = List.of(projectRepository.findById(id).orElseThrow());
+        return projects.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteProject(Integer projectId){
+        projectRepository.deleteById(projectId);
     }
 
 

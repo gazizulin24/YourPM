@@ -31,19 +31,16 @@ public class TaskController {
 
         taskService.createNewTask(new TaskDTO(name, description, new Date(taskService.deadlineToTimeStamp(deadline)), priority), projectId);
 
-
-
-
-
-        return new RedirectView("/dashboard");
+        return new RedirectView("/dashboard/" + projectId);
 
     }
 
 
     @GetMapping("/delete/{id}")
     public RedirectView deleteTask(@PathVariable("id") Integer id){
+        Integer projectId = taskService.getProjectIdByTaskId(id);
         taskService.deleteTask(id);
-        return new RedirectView("/dashboard");
+        return new RedirectView("/dashboard/" + projectId);
     }
 
 
