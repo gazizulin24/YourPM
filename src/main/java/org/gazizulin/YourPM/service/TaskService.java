@@ -37,6 +37,12 @@ public class TaskService {
         taskRepository.save(task);
     }
 
+    @Transactional
+    public void deleteTask(Integer taskId){
+        Task task = taskRepository.findById(taskId).orElseThrow();
+        taskRepository.delete(task);
+    }
+
     public long deadlineToTimeStamp(String dateString){
         String format = "dd.MM.yyyy";
         DateFormat dateFormat = new SimpleDateFormat(format);

@@ -13,7 +13,7 @@ import java.util.Date;
 /**
  * @author Timur Gazizulin
  */
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/task")
 public class TaskController {
@@ -37,6 +37,13 @@ public class TaskController {
 
         return new RedirectView("/dashboard");
 
+    }
+
+
+    @GetMapping("/delete/{id}")
+    public RedirectView deleteTask(@PathVariable("id") Integer id){
+        taskService.deleteTask(id);
+        return new RedirectView("/dashboard");
     }
 
 

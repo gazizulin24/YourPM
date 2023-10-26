@@ -6,3 +6,17 @@ spring:
     password: postgres
   jpa:
     show-sql: true
+#  mail:
+#    host: smtp.mail.ru
+#    port: 465
+#    username: your_pm_swd@mail.ru
+#    password: 2Gbc6QpDxex8f5AHcJ88
+#    test-connection: true
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+server:
+  port: 8080

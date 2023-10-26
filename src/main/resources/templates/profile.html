@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My profile</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+<div class="login-box">
+    <div class="form">
+        <form class="login-form" th:action="${'/profile/' + id}" th:method="POST">
+            <div class="Username-img"><span class="username-name"></span></div>
+            <input type="password" placeholder="новый пароль" name="newPass" required>
+            <button>Подтвердить</button>
+        </form>
+        <br>
+        <form class="logout-form" th:action="${'/login'}" th:method="GET">
+            <button style="background: #a93936">Выйти из аккаунта</button>
+        </form>
+    </div>
+</div>
+<style>
+    @import url(https://fonts.googleapis.com/css?family=Poppins:300);
+
+    body {
+        background: linear-gradient(90deg, rgba(55, 80, 151, 0.226) 0%, rgba(0, 49, 80, 0.249) 50%);
+        font-family: "Poppins";
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .form {
+        position: relative;
+        background: #FFFFFF;
+        max-width: 360px;
+        padding: 45px;
+        text-align: center;
+        box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+        border-radius: 15px;
+        height: fit-content;
+        align-self: center;
+    }
+    .form input {
+        outline: 0;
+        background: #f2f2f2;
+        width: 100%;
+        border: 0;
+        margin: 0 0 15px;
+        padding: 15px;
+        box-sizing: border-box;
+        font-size: 14px;
+        border-radius: 15px;
+    }
+    .form button {
+        text-transform: uppercase;
+        outline: 0;
+        background: #66c37dc7;
+        width: 100%;
+        border: 0;
+        padding: 15px;
+        color: #FFFFFF;
+        font-size: 14px;
+        border-radius: 15px;
+        -webkit-transition: all 0.3 ease;
+        transition: all 0.3 ease;
+        cursor: pointer;
+    }
+    .form button:hover, .form button:active, .form button:focus {
+        background: #03da4b;
+    }
+    .form .message {
+        margin: 15px 0 0;
+        color: #b3b3b3;
+        font-size: 12px;
+    }
+    .username-img {
+        margin-bottom: 20px;
+        align-self: center;
+    }
+    .login-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        min-width: 360px;
+    }
+    .login-form div {
+        margin-bottom: 20px;
+    }
+</style>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+
+        let username = /*[[${username}]]*/ "";
+        console.log(username);
+        let firstLetter = username.charAt(0).toUpperCase();
+        let randomColor = '#' + Math.floor(Math.random()*4096).toString(16).padStart(3, '0') + '000';
+
+
+        // Создаем новый элемент 'avatar' с классом 'Username-img'
+        let avatar = document.createElement('div');
+        avatar.className = 'Username-img';
+        avatar.style.backgroundColor = randomColor;
+        avatar.style.borderRadius = '50%';
+        avatar.style.width = '50px';
+        avatar.style.height = '50px';
+        avatar.style.display = 'flex';
+        avatar.style.justifyContent = 'center';
+        avatar.style.alignItems = 'center';
+        avatar.style.color = '#fff';
+        avatar.textContent = firstLetter;
+
+        // Добавляем новый элемент 'avatar' внутрь элемента с классом 'Username-img', слева от надписи
+        let usernameDiv = document.querySelector('.Username-img');
+        usernameDiv.insertBefore(avatar, usernameDiv.firstChild);
+    });
+</script>
+</body>
+</html>

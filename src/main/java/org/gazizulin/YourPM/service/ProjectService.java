@@ -55,6 +55,13 @@ public class ProjectService {
         project.getUsers().add(user);
     }
 
+    @Transactional
+    public void removeUserFromProject(Integer projectId, String username){
+        Project project = projectRepository.findById(projectId).orElseThrow();
+        User user = usersRepository.findByName(username).orElseThrow();
+        project.getUsers().remove(user);
+    }
+
 
     public List<ProjectDTO> getAllProjectsToUser(Integer id){
         User user = usersRepository.findById(id).orElseThrow();

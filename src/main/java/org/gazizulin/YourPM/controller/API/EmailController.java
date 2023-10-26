@@ -13,16 +13,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class EmailController {
 
-    private final JavaMailSender mailSender;
-
-
-    @GetMapping("/email")
-    public void SendEmail(){
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo("t4ynyyy@gmail.com");
-        message.setSubject("Привет!");
-        message.setText("Это тестовое сообщение.");
-        mailSender.send(message);
-    }
+//    private final JavaMailSender mailSender;
+//
+//
+//    @GetMapping("/email")
+//    public String SendEmail(){
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setFrom("your_pm_swd@mail.ru");
+//        message.setTo("t4ynyyy@gmail.com");
+//        message.setSubject("Hellow");
+//        message.setText("Hello World");
+//        mailSender.send(message);
+//        return "redirect:/dashboard";
+//    }
 }
 

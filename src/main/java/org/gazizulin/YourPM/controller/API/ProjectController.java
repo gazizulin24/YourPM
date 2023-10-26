@@ -46,12 +46,20 @@ public class ProjectController {
         return projectService.getAllProjectsToUser(id);
     }
 
-    @PostMapping("/add/{projectId}")
+    @PostMapping("/adduser/{projectId}")
     public RedirectView addUserToProject(@RequestParam(name = "username") String username,
                                          @PathVariable(name = "projectId") Integer projectId){
-
-        projectService.addUserToProject(projectId, username);
+        if (userService.getUserByUsername(username).isPresent()){
+            projectService.addUserToProject(projectId, username);
+        }
         return new RedirectView("/dashboard");
+    }
 
+    @PostMapping("/remove/{projectId}")
+    public RedirectView removeUserFromProject(@RequestParam(name = "username") String username,
+                                              @PathVariable(name = "projectId") Integer projectId){
+
+        projectService.removeUserFromProject(projectId, username);
+        return new RedirectView("/dashboard");
     }
 }
