@@ -4,7 +4,7 @@ CREATE TABLE users(
     name VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR NOT NULL,
     role VARCHAR(10) NOT NULL
-)
+);
 
 
 
@@ -14,7 +14,7 @@ CREATE TABLE project(
     deadline TIMESTAMP NOT NULL,
     priority VARCHAR NOT NULL,
     state VARCHAR NOT NULL
-)
+);
 
 
 CREATE TABLE task(
@@ -25,11 +25,11 @@ CREATE TABLE task(
     deadline TIMESTAMP NOT NULL,
     state VARCHAR NOT NULL,
     priority VARCHAR NOT NULL
-)
+);
 
 
 CREATE TABLE users_project(
     user_id INT REFERENCES users(id),
     project_id INT REFERENCES project(id),
     PRIMARY KEY (user_id, project_id)
-)
+);
