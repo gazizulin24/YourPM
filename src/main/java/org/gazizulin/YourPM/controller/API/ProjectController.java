@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,17 @@ public class ProjectController {
 
 
     @GetMapping("/get/{id}")
-    public List<Project> getAllProjects(@PathVariable(name = "id") Integer id){
-        return userService.getAllProjectsFromUserId(id);
+    public List<ProjectDTO> getAllProjects(@PathVariable(name = "id") Integer id){
+
+        return projectService.getAllProjectsToUser(id);
+    }
+
+    @PostMapping("/add/{projectId}")
+    public RedirectView addUserToProject(@RequestParam(name = "username") String username,
+                                         @PathVariable(name = "projectId") Integer projectId){
+
+        projectService.addUserToProject(projectId, username);
+        return new RedirectView("/dashboard");
+
     }
 }

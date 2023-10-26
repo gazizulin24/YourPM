@@ -50,6 +50,4 @@ public class Project {
 
     @OneToMany(mappedBy = "project", fetch = FetchType.EAGER)
     private List<Task> tasks = new ArrayList<>();
-
-
 }

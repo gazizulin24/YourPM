@@ -35,7 +35,6 @@ public class User {
     private String password;
 
     @Column(name ="email")
-    @Email(message = "Неправильный формат введения почты")
     private String email;
 
     @Column(name="role")
@@ -44,4 +43,11 @@ public class User {
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Project> projects = new ArrayList<>();
 
+
+    public User(String name, String password, String email, String role) {
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+    }
 }

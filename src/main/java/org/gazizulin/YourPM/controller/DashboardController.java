@@ -1,6 +1,7 @@
 package org.gazizulin.YourPM.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.gazizulin.YourPM.service.ProjectService;
 import org.gazizulin.YourPM.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class DashboardController {
 
     private final UserService userService;
+    private final ProjectService projectService;
     @GetMapping
     public ModelAndView getDashboardPage(Authentication auth){
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
@@ -25,7 +27,9 @@ public class DashboardController {
 
         ModelAndView modelAndView = new ModelAndView("dashboard");
         modelAndView.addObject("username", username);
-        modelAndView.addObject("id", userService.findIdByUsername(username));
+        Integer userId =userService.findIdByUsername(username);
+        modelAndView.addObject("id", userId);
+        modelAndView.addObject("projects", projectService.getAllProjectsToUser(userId));
 
         return modelAndView;
     }

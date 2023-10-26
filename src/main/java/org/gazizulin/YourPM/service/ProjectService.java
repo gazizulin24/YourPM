@@ -6,6 +6,7 @@ import org.gazizulin.YourPM.entity.Project;
 import org.gazizulin.YourPM.entity.User;
 import org.gazizulin.YourPM.repository.ProjectRepository;
 import org.gazizulin.YourPM.repository.UsersRepository;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Timur Gazizulin
@@ -34,6 +36,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UsersRepository usersRepository;
     private final ModelMapper modelMapper;
+    private final UserService userService;
 
     @Transactional
     public void createProject(ProjectDTO projectDTO, Integer creatorId){
@@ -45,11 +48,19 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
+    @Transactional
+    public void addUserToProject(Integer projectId, String username){
+        Project project = projectRepository.findById(projectId).orElseThrow();
+        User user = usersRepository.findByName(username).orElseThrow();
+        project.getUsers().add(user);
+    }
 
-    public List<Project> getAllProjectsToUser(Integer id){
+
+    public List<ProjectDTO> getAllProjectsToUser(Integer id){
         User user = usersRepository.findById(id).orElseThrow();
-        user.getProjects().forEach(project -> System.out.println(project.getName()));
-        return user.getProjects();
+        List<Project> projects = user.getProjects();
+        List<ProjectDTO> projectDTOS = projects.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return projectDTOS;
     }
 
 
@@ -66,5 +77,9 @@ public class ProjectService {
 
     private Project mapFromDTO(ProjectDTO dto){
         return modelMapper.map(dto, Project.class);
+    }
+
+    private ProjectDTO mapToDTO(Project project){
+        return modelMapper.map(project, ProjectDTO.class);
     }
 }
